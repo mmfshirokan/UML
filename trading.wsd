@@ -1,0 +1,36 @@
+@startuml trading service
+
+skinparam ComponentStyle rectangle 
+
+component [price provider] as priceProv
+component [price servise] as priceServ
+component [chart service] as chartServ
+component [API endpoint] as api 
+component [acount payIn] as payIn 
+component [position servise] as posServ
+
+database "Postgres" {
+[candle model] as candleMod
+[user accounting] as acountMod
+[position open/close] as posMod
+}
+
+priceProv --> priceServ : kafka
+priceServ -> chartServ : grpc stream 
+priceServ ->  posServ : grpc stream
+chartServ - api 
+api - payIn
+payIn <--> posServ : grpc stream
+
+api --> posServ : TODO grpc
+
+candleMod ..> chartServ
+acountMod ..> payIn
+posMod    ..> posServ
+
+note top of api
+late stage of
+development
+end note
+
+@enduml
